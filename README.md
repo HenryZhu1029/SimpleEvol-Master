@@ -1,4 +1,4 @@
-# SimpleEvol: An Agent-Loop Framework for LLM-Driven Automated Heuristic Design with Minimal Human Priors
+# [NeurIPS 2026] SimpleEvol: An Agent-Loop Framework for LLM-Driven Automated Heuristic Design with Minimal Human Priors
 
 ## Framework
 
