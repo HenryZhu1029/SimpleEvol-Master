@@ -18,4 +18,4 @@ max_experiments: 820
 compress_every: 5
 enable_test_eval: False
 
-timeout: 60 # total timeout per heuristic evaluation across training instances
+timeout: 60 # SimpleEvol: per instance for FSSP; per heuristic batch for TSP/CVRP

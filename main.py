@@ -81,7 +81,8 @@ def main(cfg):
         mode="test",
         problem_size=cfg.problem.problem_size,
         n_instances=cfg.problem.test_n_instances,
-        timeout=3600,
+        timeout=(cfg.timeout if cfg.algorithm == "simple_evol"
+                 and cfg.problem.problem_name == "fssp_gls" else 3600),
     )
     test_result = evaluator.evaluate(str(best_cand_path))
 

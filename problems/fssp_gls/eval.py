@@ -268,14 +268,14 @@ class FSSPEvalTool:
         self.mode = mode
         self.timeout = float(timeout)
         if self.timeout <= 0:
-            raise ValueError("timeout must be positive (seconds per heuristic evaluation)")
+            raise ValueError("timeout must be positive (seconds per instance)")
 
         self.train_data_path = Path(data_path) if data_path is not None else DEFAULT_TRAIN_DATA_PATH
         self.testing_data_path = DEFAULT_TESTING_DATA_PATH
 
         # Paper: at most 1000 GLS iterations and 60 seconds per instance.
         self.iter_max = 1000
-        self.time_limit = 60.0
+        self.time_limit = self.timeout
 
     # -------------------------
     # Loading candidate code
@@ -319,6 +319,25 @@ class FSSPEvalTool:
     # GLS core
     # -------------------------
     def _gls_single(self, tasks, heuristic_module):
+        self._instance_best = None
+        old_handler = None
+        has_alarm = hasattr(signal, "SIGALRM")
+        if has_alarm:
+            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.setitimer(signal.ITIMER_REAL, self.timeout)
+        try:
+            return self._gls_single_impl(tasks, heuristic_module)
+        except HeuristicTimeoutError:
+            # Return the best valid solution found within this instance's budget.
+            if self._instance_best is not None:
+                return float(self._instance_best)
+            raise
+        finally:
+            if has_alarm:
+                signal.setitimer(signal.ITIMER_REAL, 0)
+                signal.signal(signal.SIGALRM, old_handler)
+
+    def _gls_single_impl(self, tasks, heuristic_module):
         start = time.monotonic()
         cmax_best = 1e10
 
@@ -327,6 +346,7 @@ class FSSPEvalTool:
 
         best_seq = seq
         cmax_best = cmax
+        self._instance_best = cmax_best
 
         it = 0
 
@@ -337,6 +357,7 @@ class FSSPEvalTool:
             if cmax < cmax_best:
                 best_seq = seq
                 cmax_best = cmax
+                self._instance_best = cmax_best
 
             new_matrix, jobs = heuristic_module.get_matrix_and_jobs(
                 np.array(seq), tasks.copy(), tasks.shape[1], n
@@ -427,6 +448,10 @@ class FSSPEvalTool:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     module = self._load_module_from_code_path(code_path)
+                # The outer alarm guards code loading only, not the dataset.
+                # Each training/test instance gets its own timer in _gls_single.
+                if hasattr(signal, "SIGALRM"):
+                    signal.alarm(0)
 
                 if not hasattr(module, "get_matrix_and_jobs"):
                     return FSSPEvalResult(
@@ -482,7 +507,7 @@ class FSSPEvalTool:
                         signal.signal(signal.SIGALRM, old_handler)
 
         except HeuristicTimeoutError:
-            return FSSPEvalResult(error=f"Code execution timeout (limit {self.timeout} s per heuristic evaluation)")
+            return FSSPEvalResult(error=f"Code loading or instance timeout before a valid solution (limit {self.timeout} s)")
 
         except Exception as e:
             return FSSPEvalResult(
