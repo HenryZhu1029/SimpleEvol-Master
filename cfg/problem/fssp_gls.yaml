@@ -1,0 +1,7 @@
+problem_name: fssp_gls
+problem_type: white_box
+obj_type: min
+problem_size: 50 # problem size for training
+func_name: get_matrix_and_jobs
+n_instances: 16
+test_n_instances: 10 # 10 each txt file, total 10*11 = 110 

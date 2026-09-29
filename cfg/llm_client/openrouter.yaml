@@ -1,0 +1,17 @@
+# config/llm_client/openrouter.yaml
+_target_: utils.llm_client.openrouter.OpenRouterClient
+model: openai/o3-mini
+# -------- decoding --------
+temperature: 1.0
+
+# -------- OpenRouter auth --------
+api_key: 
+base_url: https://openrouter.ai/api/v1
+
+# -------- request control --------
+timeout: 60
+max_retries: 5
+
+# To activate reasonining, required by some models
+reasoning:
+  enabled: true

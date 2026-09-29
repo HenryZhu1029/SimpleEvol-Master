@@ -1,0 +1,9 @@
+problem_name: tsp_constructive
+problem_type: constructive
+obj_type: min
+problem_size: 50 # problem size for training
+func_name: select_next_node
+n_instances: 64
+test_n_instances: 64 # instances per test size (N=50, 100, 200)
+# configs for funsearch
+

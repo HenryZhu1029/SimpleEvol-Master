@@ -1,0 +1,7 @@
+problem_name: cvrp_aco
+problem_type: aco
+obj_type: min
+problem_size: 50 # problem size for training
+func_name: heuristics
+n_instances: 10
+test_n_instances: 64

@@ -1,0 +1,21 @@
+defaults:
+  - _self_
+  - problem: tsp_constructive
+  - llm_client: openai
+  - baseline: funsearch
+  - override hydra/output: local
+
+hydra:
+  job:
+    name: ${problem.problem_name}-${problem.problem_type}
+    chdir: True
+
+# The chosen algorithm
+algorithm: simple_evol # other options are "funsearch"
+output_root: ${algorithm}_outputs
+
+max_experiments: 820
+compress_every: 5
+enable_test_eval: False
+
+timeout: 60 # total timeout per heuristic evaluation across training instances
