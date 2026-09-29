@@ -1,6 +1,26 @@
 # SimpleEvol
 
-SimpleEvol searches for optimization heuristics with an LLM-driven generation-and-evaluation loop. Each candidate is evaluated locally, and its description and evaluation feedback are added to the conversation. Periodic context compression retains a summary and the best-so-far heuristic.
+## Framework
+
+SimpleEvol is a lightweight LLM-driven framework for automatic heuristic design that maintains a single evolving search trajectory instead of a population with predefined mutation and crossover operators. At each iteration, the LLM generates a candidate heuristic and a concise description, while an evaluator measures its performance on training instances and returns objective values, runtime information, and any execution errors. Periodic history compression turns the accumulated feedback into compact working notes and retains the best-so-far heuristic in the prompt context, allowing the agent to build on previous discoveries without a separate planner or reflection module. This design shifts the emphasis from handcrafted search operators to a lightweight information interface that supports the LLM's own heuristic exploration.
+
+![SimpleEvol framework: LLM generation, heuristic evaluation, feedback, and periodic history compression](figures/main_frame.png)
+
+*SimpleEvol combines a generation-and-evaluation loop with best-so-far retention and compressed search history.*
+
+## Advantages over FunSearch, EoH, and ReEvo
+
+Under the paper's common budget of 820 heuristic evaluations, SimpleEvol combines a simpler search framework with strong performance across ten backbone LLMs. It achieves the highest intelligence conversion efficiency (ICE, the fitted slope of performance against the model-intelligence proxy) among these four methods on both TSP Constructive and CVRP-ACO: **2.1941 on TSP** and **6.2128 on CVRP**, compared with **1.8174** and **5.4381** for the strongest baseline by ICE, FunSearch. The model-wise comparisons below show that this advantage is also reflected in direct performance rankings, rather than only in regression slopes.
+
+Each column compares the four methods using the same backbone. The upper-left label gives the rank by average gap, while the percentage and color show relative gap improvement over the four-method mean for that backbone. Positive values indicate a lower, better gap than that mean; they are not pairwise improvements over a particular baseline.
+
+**TSP Constructive.** SimpleEvol ranks first on **6 of 10 backbones** and among the top two on **9 of 10**, the most first-place finishes among the four methods. With GPT-5-mini, it achieves a **16.9% relative gap improvement over the four-method mean**. The paper additionally reports the lowest test gap among the four methods at all three tested sizes with this backbone: **4.77%, 6.47%, and 9.49%** for N=50, 100, and 200, respectively.
+
+![TSP Constructive: model-wise performance ranks and relative gap improvements for SimpleEvol, FunSearch, EoH, and ReEvo](figures/tsp_advantage_rank_01.png)
+
+**CVRP-ACO.** SimpleEvol ranks first on **5 of 10 backbones** and among the top two on **8 of 10**, again achieving the most first-place finishes. Its relative gap improvement over the four-method mean reaches **24.7% with Qwen3-Instruct** and **14.7% with GPT-5-mini**. With GPT-5-mini, it also achieves the lowest test gap at every tested size: **0.34%, 4.31%, and 4.26%** for N=50, 100, and 200. Together, these results demonstrate competitive model-wise performance and stronger fitted scaling within the evaluated tasks, backbones, and budget.
+
+![CVRP-ACO: model-wise performance ranks and relative gap improvements for SimpleEvol, FunSearch, EoH, and ReEvo](figures/cvrp_advantage_rank_01.png)
 
 This README describes the current implementation and configuration, not a guarantee of reproducing every published result.
 
