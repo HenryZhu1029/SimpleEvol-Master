@@ -152,4 +152,54 @@ simple_evol_outputs/<problem_name>-<problem_type>/<date>_<time>/
 
 FSSP also records `exp_000.txt` for the seed. Each experiment record contains the candidate code, description, objective, timing, and errors. The final selected code is saved in `problems/<problem>/best_candidates/`. Final test scores are logged by `main.py`.
 
+## 7. Customizing SimpleEvol for New Problems
+
+1. **Create the problem module.** Add a directory under `problems/`:
+
+   ```text
+   problems/your_problem/
+       __init__.py
+       prompt.py
+       eval.py
+       gen_inst.py    # Optional dataset generator
+       data/          # Training and test datasets
+   ```
+
+   In `prompt.py`, define `TASK_DESC` with the task description and heuristic interface. Optionally add a `SEED` heuristic.
+
+2. **Implement the evaluator.** Adapt an existing `eval.py`, keeping its `*EvalTool` constructor and result interface. Implement `evaluate(code_path)` to load the candidate, run it on training/test instances, and return `obj`, `time`, `error`, and `details` through a result object supporting `to_dict()`.
+
+3. **Configure and run.** Create `cfg/problem/your_problem.yaml`:
+
+   ```yaml
+   problem_name: your_problem
+   problem_type: constructive
+   obj_type: min              # min or max
+   problem_size: 50
+   func_name: your_heuristic
+   n_instances: 64
+   test_n_instances: 64
+   ```
+
+   In `cfg/config.yaml`, select `- problem: your_problem` and `algorithm: simple_evol`, then run:
+
+   ```bash
+   python main.py
+   ```
+
+See `problems/tsp_constructive/` and `cfg/problem/tsp_constructive.yaml` for examples.
+
+## 8. Citation
+
+If you encounter any issues or have questions about the code, please open an issue in this repository. If you find SimpleEvol useful for your research, please consider giving this repository a star and citing our paper:
+
+```bibtex
+@inproceedings{zhu2026simpleevol,
+  title = {{SimpleEvol}: An Agent-Loop Framework for {LLM}-Driven Automated Heuristic Design with Minimal Human Priors},
+  author = {Zhu, Jianghan and Zhang, Cong and Zhu, Rongjie and Zhang, Chi and Cao, Zhiguang},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year = {2026}
+}
+```
+
 

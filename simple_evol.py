@@ -335,7 +335,7 @@ class SimpleEvol:
         # An lightweight prompting cues to encourage exploration.
         # It is intended only to diversify the agent's behaviour, not to replace search actions.
         if best_result is not None:
-            prompt_strategy = random.choice(
+            behaviour_clue = random.choice(
                 [
                     "Based on your findings, continue refining the current best strategy.",
                     "Focus on improving the strongest existing design.",
@@ -355,7 +355,7 @@ class SimpleEvol:
                 f"best/elite code description:{best_result.get('description', 'No description available.')}"
             )
         else:
-            prompt_strategy = "No successful experiment yet. Focus on obtaining a valid working heuristic first."
+            behaviour_clue = "No successful experiment yet. Focus on obtaining a valid working heuristic first."
             best_code_section = "No successful experiment yet."
 
 
@@ -375,7 +375,7 @@ class SimpleEvol:
                     f"Experiment progress: {self.experiment_count}/{self.max_experiments} completed, "
                     f"{remaining_experiments} remaining.\n\n"
                     f"{best_code_section}\n\n"
-                    f"Prompt strategy: {prompt_strategy}\n\n"
+                    f"Behaviour clue: {behaviour_clue}\n\n"
                     "Output the next candidate using exactly the required format: "
                     "one Python code block followed by a heuristic description."
                 ),
